@@ -1,0 +1,52 @@
+name: Test Poetry Install
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          # Add poetry to PATH for macOS and Ubuntu
+          if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
+            echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          fi
+        shell: bash
+
+      - name: Install dependencies (with fasttext for Linux/macOS)
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          poetry install --extras "fasttext-deps"
+        shell: bash
+        env:
+          POETRY_VIRTUALENVS_IN_PROJECT: false
+
+      - name: Install dependencies (without fasttext for Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          poetry install
+        shell: bash
+        env:
+          POETRY_VIRTUALENVS_IN_PROJECT: false
+
+      - name: Verify Poetry environment
+        run: |
+          poetry env info
+        shell: bash

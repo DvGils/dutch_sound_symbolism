@@ -1,3 +1,5 @@
+![build](https://github.com/DvGils/dutch_sound_symbolism/actions/workflows/build.yml/badge.svg)
+
 # Do Dutch Nonwords Convey Meaning?
 ## Analysis of Sound Symbolic Associations with Dutch Names and Nonwords using Distributional Semantic Models
 
