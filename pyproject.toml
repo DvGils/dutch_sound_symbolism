@@ -9,7 +9,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
-torch = {version = "^2.2.2+cpu", source = "pytorch_cpu"}
+torch = {version = "2.2.2+cpu", source = "pytorch_cpu"}
 filesplit = "^4.0.1"
 pandas = "^2.2.2"
 scipy = "^1.13.1"
