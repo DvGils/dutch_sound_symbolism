@@ -23,12 +23,8 @@ jobs:
 
       - name: Install Poetry
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          # Add poetry to PATH for macOS and Ubuntu
-          if [[ "${{ matrix.os }}" != "windows-latest" ]]; then
-            echo "${HOME}/.local/bin" >> $GITHUB_PATH
-          fi
-        shell: bash
+          pip install poetry
+          poetry --version
 
       - name: Install dependencies (with fasttext for Linux/macOS)
         if: ${{ matrix.os != 'windows-latest' }}
