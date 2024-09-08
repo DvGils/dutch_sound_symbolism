@@ -2652,4 +2652,4 @@ fasttext-deps = ["fasttext", "fasttext-wheel", "pybind11", "wheel"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "9b9ede73592357f4d476396de6fdc35425c97ed1642aac9db9a3ab9a8ba00f3b"
+content-hash = "c028223526f95dbc46248ca41290adfce0565bbd51732fe3a819a5dd13499a08"
