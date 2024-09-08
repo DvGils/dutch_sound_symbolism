@@ -1995,7 +1995,7 @@ files = [
 name = "setuptools"
 version = "74.1.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "setuptools-74.1.2-py3-none-any.whl", hash = "sha256:5f4c08aa4d3ebcb57a50c33b1b07e94315d7fc7230f7115e47fc99776c8ce308"},
@@ -2209,42 +2209,6 @@ typing-extensions = ">=4.8.0"
 [package.extras]
 opt-einsum = ["opt-einsum (>=3.3)"]
 optree = ["optree (>=0.11.0)"]
-
-[[package]]
-name = "torch"
-version = "2.4.1+cpu"
-description = "Tensors and Dynamic neural networks in Python with strong GPU acceleration"
-optional = false
-python-versions = ">=3.8.0"
-files = [
-    {file = "torch-2.4.1+cpu-cp310-cp310-linux_x86_64.whl", hash = "sha256:833490a28ac156762ed6adaa7c695879564fa2fd0dc51bcf3fdb2c7b47dc55e6"},
-    {file = "torch-2.4.1+cpu-cp310-cp310-win_amd64.whl", hash = "sha256:1dd062d296fb78aa7cfab8690bf03704995a821b5ef69cfc807af5c0831b4202"},
-    {file = "torch-2.4.1+cpu-cp311-cp311-linux_x86_64.whl", hash = "sha256:2b03e20f37557d211d14e3fb3f71709325336402db132a1e0dd8b47392185baf"},
-    {file = "torch-2.4.1+cpu-cp311-cp311-win_amd64.whl", hash = "sha256:76a6fe7b10491b650c630bc9ae328df40f79a948296b41d3b087b29a8a63cbad"},
-    {file = "torch-2.4.1+cpu-cp312-cp312-linux_x86_64.whl", hash = "sha256:8800deef0026011d502c0c256cc4b67d002347f63c3a38cd8e45f1f445c61364"},
-    {file = "torch-2.4.1+cpu-cp312-cp312-win_amd64.whl", hash = "sha256:3a570e5c553415cdbddfe679207327b3a3806b21c6adea14fba77684d1619e97"},
-    {file = "torch-2.4.1+cpu-cp38-cp38-linux_x86_64.whl", hash = "sha256:0c0a7cc4f7c74ff024d5a5e21230a01289b65346b27a626f6c815d94b4b8c955"},
-    {file = "torch-2.4.1+cpu-cp38-cp38-win_amd64.whl", hash = "sha256:330e780f478707478f797fdc82c2a96e9b8c5f60b6f1f57bb6ad1dd5b1e7e97e"},
-    {file = "torch-2.4.1+cpu-cp39-cp39-linux_x86_64.whl", hash = "sha256:3c99506980a2fb4b634008ccb758f42dd82f93ae2830c1e41f64536e310bf562"},
-    {file = "torch-2.4.1+cpu-cp39-cp39-win_amd64.whl", hash = "sha256:c4f2c3c026e876d4dad7629170ec14fff48c076d6c2ae0e354ab3fdc09024f00"},
-]
-
-[package.dependencies]
-filelock = "*"
-fsspec = "*"
-jinja2 = "*"
-networkx = "*"
-sympy = "*"
-typing-extensions = ">=4.8.0"
-
-[package.extras]
-opt-einsum = ["opt-einsum (>=3.3)"]
-optree = ["optree (>=0.11.0)"]
-
-[package.source]
-type = "legacy"
-url = "https://download.pytorch.org/whl/cpu"
-reference = "pytorch_cpu"
 
 [[package]]
 name = "tqdm"
@@ -2652,4 +2616,4 @@ fasttext-deps = ["fasttext", "fasttext-wheel", "pybind11", "wheel"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a574d805e9c5c67c78d38119e0dc0c3c6ac9edfa1c4cde008fe0512739ac2666"
+content-hash = "b3b760223be3200d340de20f0f81b918323da303074e8c392b39779965dcfcd1"
