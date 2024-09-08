@@ -11,7 +11,7 @@ package-mode = false
 python = "^3.9"
 torch = [
     {version = "2.4.1+cpu", markers = "sys_platform != 'darwin'", source = "pytorch_cpu"},
-    {version = "2.4.1+cpu", markers = "sys_platform == 'darwin'"}
+    {version = "2.4.1", markers = "sys_platform == 'darwin'"}
 ]
 filesplit = "^4.0.1"
 pandas = "^2.2.2"
