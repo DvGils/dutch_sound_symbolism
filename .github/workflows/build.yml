@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies (with fasttext for Linux/macOS)
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          poetry install --extras "fasttext-deps"
+          poetry install
         shell: bash
         env:
           POETRY_VIRTUALENVS_IN_PROJECT: false
