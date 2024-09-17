@@ -1,93 +1,35 @@
-'''
-This script can be used to train fasttext models using the cleaned corpus file. The four options chosen in this file
-include a purely lexical model (i.e., word2vec, no sub-word information is used), a bi-gram model (which only trains 
-lexical embeddings and embeddings for bigrams), a bi- and tri-gram model, and a model that trains lexical embeddings 
-as well as embeddings for 2-grams, 3-grams, 4-grams, and 5-grams. Models are saved as .bin files in the form of 
-'[corpus name]_d[dimensionality]_w[window size]_m[minimum n-gram size]_M[maximum n-gram size].bin'
-'''
+import pandas as pd
+from src.dsm.ft import grid
 
-import fasttext
-import os
-
-# set constant variables
-corpus = './processed_data/corpus/corpus_final.txt'
-dim_best = 300
-ws_best = 5
-min_n_best = 2
-max_n_best = 3
-min_n_lexical = 0
-max_n_lexical = 0
-out_path = './processed_data/dsm/'
-
-# train and save lexical model
-model_lexical = fasttext.train_unsupervised(input = corpus,
-                                            model = "skipgram",
-                                            dim = dim_best,
-                                            ws = ws_best,
-                                            minn = min_n_lexical,
-                                            maxn = max_n_lexical,
-                                            lr = 0.01,
-                                            epoch = 10,
-                                            minCount = 3,
-                                            thread = 8,
-                                            bucket=4000000)
-
-model_lexical.save_model(os.path.join(
-                        out_path, '{}_d{}_w{}_m{}_M{}.bin'.format(
-                        os.path.splitext(corpus)[0].split('/')[1], dim_best, ws_best, min_n_lexical, max_n_lexical)))
-del model_lexical
-
-# train and save 2-3-gram model
-model_subword = fasttext.train_unsupervised(input = corpus,
-                                            model = "skipgram",
-                                            dim = dim_best,
-                                            ws = ws_best,
-                                            minn = min_n_best,
-                                            maxn = max_n_best,
-                                            lr = 0.01,
-                                            epoch = 10,
-                                            minCount = 3,
-                                            thread = 8,
-                                            bucket=4000000)
-
-model_subword.save_model(os.path.join(
-                        out_path, '{}_d{}_w{}_m{}_M{}.bin'.format(
-                        os.path.splitext(corpus)[0].split('/')[1], dim_best, ws_best, min_n_best, max_n_best)))
-del model_subword
-
-# train and save 2-5-gram model
-model_big = fasttext.train_unsupervised(input = corpus,
-                                            model = "skipgram",
-                                            dim = dim_best,
-                                            ws = ws_best,
-                                            minn = 2,
-                                            maxn = 5,
-                                            lr = 0.01,
-                                            epoch = 10,
-                                            minCount = 3,
-                                            thread = 8,
-                                            bucket=4000000)
-
-model_big.save_model(os.path.join(
-                        out_path, '{}_d{}_w{}_m{}_M{}.bin'.format(
-                        os.path.splitext(corpus)[0].split('/')[1], dim_best, ws_best, 2, 5)))
-del model_big
+"""
+This script can be used to train fasttext models using the cleaned corpus file. We provide code to train a purely 
+lexical model (analogue to word2vec) and a model combining lexical and sub-lexical information (2-, 3-, 4-, and 
+5-character ngrams). Models are saved as .bin files in the form of 
+'[corpus name]_d[dimensionality]_w[window size]_m[minimum n-gram size]_M[maximum n-gram size].bin'. Lexical models have
+a min and max ngram size of 0, indicating that no sub-lexical information is considered.
+Models are primarily benchmarked against the Dutch ws-353 dataset from https://aclanthology.org/L18-1618.pdf .
+Additional supported benchmarks include the Dutch SimLex-999 dataset from the same source, and the relatedness scores
+from the SICK-NL dataset, cf: https://github.com/gijswijnholds/sick_nl/tree/master .
+"""
 
 
-# train and save bi-gram model
-model_bigram = fasttext.train_unsupervised(input = corpus,
-                                            model = "skipgram",
-                                            dim = dim_best,
-                                            ws = ws_best,
-                                            minn = 2,
-                                            maxn = 2,
-                                            lr = 0.01,
-                                            epoch = 10,
-                                            minCount = 3,
-                                            thread = 8,
-                                            bucket=4000000)
+ws353 = pd.read_csv('./raw_data/benchmarks/nl-ws353.dataset', header=0, sep=';', index_col=0)
+ws353 = ws353.rename(columns={'word1': 'w1', 'word2': 'w2', 'score': 'sim'})
 
-model_bigram.save_model(os.path.join(
-                        out_path, '{}_d{}_w{}_m{}_M{}.bin'.format(
-                        os.path.splitext(corpus)[0].split('/')[1], dim_best, ws_best, 2, 2)))
-del model_bigram
+simlex = pd.read_csv('./raw_data/benchmarks/nl-simlex.dataset', header=0, sep=';', index_col=0)
+simlex = simlex.rename(columns={'word1': 'w1', 'word2': 'w2', 'score': 'sim'})
+
+sick = pd.read_csv(
+     './raw_data/benchmarks/SICK_NL.txt', header=0, sep='\t', index_col=0
+)[['sentence_A', 'sentence_B', 'relatedness_score']]
+sick = sick.rename(columns={'sentence_A': 'w1', 'sentence_B': 'w2', 'relatedness_score': 'sim'})
+
+
+grid(corpus='./processed_data/corpus/sonar_cc_cgnl_5+.txt',
+     eval_words=ws353,
+     out_path='./processed_data/dsm/',
+     dimensionalities=[300],
+     window_sizes=[5],
+     min_values=[2],
+     max_values=[5],
+     threads=64)

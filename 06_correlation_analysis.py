@@ -1,52 +1,76 @@
-'''
+import os
+import pickle as pkl
+import pandas as pd
+from src.dsm.evaluations import pairwise_similarities
+from src.analyses.correlation_analysis import get_attribute_words
+
+
+"""
 This script is used to generate the data to be used for the correlation analysis, which is performed 
 with script 07. In this script, the data generated under the previous script 05 is used, and cosine
 analysis is performed. Dataframes with cosine scores are automatically saved.
-'''
+"""
 
-from src.analyses.correlation_analysis import generate_seed_word_embeddings, perform_cosine_analyses_and_save_dfs, fetch_prepared_embedding_lists
-import pickle
-import itertools
-import pandas as pd
+# COMBINATIONS TO DO:
+# - m:2 & M: 2, LEXICAL: False
 
-## LOAD DATA
-with open('./processed_data/analyses/dataframes/survey_data_ft_df.pkl', 'rb') as f:
-    survey_ft_df = pickle.load(f)   
+# COMBINATIONS DONE:
+# - m:2 & M: 5, LEXICAL: True
+# - m:0 & M: 0, LEXICAL: True
 
-with open('./processed_data/analyses/dataframes/survey_data_bert_df.pkl', 'rb') as f:
-    survey_bert_df = pickle.load(f)
+emb_dir = './processed_data/embeddings'
 
+MODEL = 'bert'                                                                      # options: 'ft', 'bert'
+LEXICAL = None                                                                      # options: True, False
+m = None                                                                            # options: 0, 2
+M = None                                                                            # options: 0, 2, 5
+LAYERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]                                 # options: ['None'], range(12)
+ATTRIBUTES = ['gender', 'polarity', 'trustworthiness', 'smartness']
+OUT_DIR = 'output/predictions/associations'
 
-## CORRELATION ANALYSIS
-# generate the fasttext and BERT embeddings for the seed words
-# for list of seed words for correlation analysis see:
-# ./src/analysis/correlation_analysis.py
-generate_seed_word_embeddings('ft')
-generate_seed_word_embeddings('bert')
+if not os.path.exists(OUT_DIR):
+    os.makedirs(OUT_DIR)
 
-# FastText
-# load the seed word fasttext embedding list
-seed_word_list_ft = fetch_prepared_embedding_lists(emb_type = 'ft', emb_model=None)
+if MODEL == 'ft':
+    target_embeddings_path = os.path.join(emb_dir, 'ft_nlcow_5+_m{}_M{}_lex{}_embeddings_stimuli.pkl'.format(m, M, LEXICAL))
+    attribute_embeddings_path = os.path.join(emb_dir, 'ft_embeddings_attributes.pkl')
+else:
+    target_embeddings_path = os.path.join(emb_dir, 'bert_embeddings_stimuli.pkl')
+    attribute_embeddings_path = os.path.join(emb_dir, 'bert_embeddings_attributes.pkl')
 
-# perform cosine analyses and save dataframes
-perform_cosine_analyses_and_save_dfs(input_df = survey_ft_df, 
-                                     seed_words = seed_word_list_ft, 
-                                     emb_type = 'ft', 
-                                     word_types = pd.unique(survey_ft_df['word_type']).tolist(), 
-                                     associations = seed_word_list_ft.keys(), 
-                                     models = ['0', '2-5'],
-                                     bootstrap = False)
+with open(target_embeddings_path, 'rb') as f:
+    target_embeddings = pkl.load(f)
+with open(attribute_embeddings_path, 'rb') as f:
+    attribute_embeddings = pkl.load(f)
 
+attribute_dict = get_attribute_words()
 
-# BERT
-# load the seed word BERT embedding list
-seed_word_list_bert = fetch_prepared_embedding_lists(emb_type = 'bert', emb_model=None)
+associations_df = []
+for attribute in ATTRIBUTES:
+    print('##############{}##############'.format(attribute))
 
-# perform cosine analyses and save dataframes
-perform_cosine_analyses_and_save_dfs(input_df = survey_bert_df, 
-                                     seed_words = seed_word_list_bert, 
-                                     emb_type = 'bert', 
-                                     word_types = pd.unique(survey_bert_df['word_type']).tolist(), 
-                                     associations = seed_word_list_bert.keys(), 
-                                     models = pd.unique(survey_bert_df['model']).tolist(), 
-                                     bootstrap = True)
+    for layer in LAYERS:
+        associations = pairwise_similarities(target_embeddings, attribute_embeddings, layer)
+
+        for t in target_embeddings.keys():
+            for p, words in attribute_dict[attribute].items():
+                for w in words:
+                    associations_df.append({
+                        'target': t,
+                        'semantic_differential': attribute,
+                        'pole': p,
+                        'word': w,
+                        'embedder': MODEL,
+                        'layer': layer,
+                        'lexical': LEXICAL,
+                        'm': m,
+                        'M': M,
+                        'sim': associations[t][w]
+                    })
+
+pd.DataFrame(
+    associations_df
+).to_csv(
+    os.path.join(OUT_DIR, '{}_m{}_M{}_lex{}_associations.csv'.format(MODEL, m, M, LEXICAL)),
+    sep='\t', index=False, index_label=False
+)
